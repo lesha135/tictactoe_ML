@@ -31,15 +31,13 @@ class AI():
             step += neuron_net[2][i]
         return -1
 
-    def evolve(self, copies_num):
+    def evolve(self, copies_num,learning_rate):
         ans = [self.net]
-        for i in range(copies_num-1):
-            if random.randint(1, 2) == 1:
-                net = copy.deepcopy(self.net)
-                net[0][random.randint(0, self.neurons - 1)][
-                    random.randint(0, self.input - 1)] += random.random() * 2 - 1
-                ans.append(net)
-            else:
-                net = copy.deepcopy(self.net)
-                net[1][random.randint(0, self.input - 1)][
-                    random.randint(0, self.neurons - 1)] += random.random() * 2 - 1
+        for _ in range(copies_num-1):
+            net = copy.deepcopy(self.net)
+            for i in range(self.neurons):
+                for j in range(self.input):
+                    net[0][i][j] += (random.random()*2-1)*learning_rate
+                    net[1][j][i] += (random.random()*2-1)*learning_rate
+            ans.append(net)
+
