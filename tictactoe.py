@@ -1,8 +1,6 @@
 import pygame
 import ML
 
-Ai=ML.AI(9,9)
-
 pygame.init()
 screen = pygame.display.set_mode((700, 700))
 clock = pygame.time.Clock()
@@ -12,7 +10,7 @@ class TictactoeFild():
     def __init__(self, pos, size_pixel, size):
         self.size = size
         self.board = [[0] * size for _ in range(size)]
-        self.board_line = [0]*(size**2)
+        self.board_line = [0] * (size ** 2)
         self.pos = pos
         self.size_pixel = size_pixel
         self.player = 1
@@ -20,20 +18,26 @@ class TictactoeFild():
 
     def restart(self):
         self.board = [[0] * self.size for _ in range(self.size)]
-        self.board_line = [0]*(self.size**2)
+        self.board_line = [0] * (self.size ** 2)
         self.player = 1
         self.done = False
 
-    def generate_move(self):
+    def generate_move(self, Ai):
         if self.done:
             return
-        ans = Ai.play(self.board_line)
-        print(ans)
+        if self.player == 1:
+            for i in range(self.size ** 2):
+                self.board_line[i] = -self.board_line[i]
+            ans = Ai.play(self.board_line)
+            for i in range(self.size ** 2):
+                self.board_line[i] = -self.board_line[i]
+        else:
+            ans = Ai.play(self.board_line)
         if self.board_line[ans] != 0:
             self.done = True
             return (self.player % 2) + 1
         self.board[ans // self.size][ans % self.size] = self.player
-        self.board_line[ans] = self.player
+        self.board_line[ans] = (self.player - 1.5) * 2
         self.player = (self.player % 2) + 1
         for x in range(self.size):
             for y in range(self.size):
@@ -62,32 +66,31 @@ class TictactoeFild():
         if self.pos[0] <= x <= self.pos[0] + self.size_pixel and self.pos[1] <= y <= self.pos[1] + self.size_pixel:
             x, y = x - self.pos[0], y - self.pos[1]
             x, y = x * self.size // self.size_pixel, y * self.size // self.size_pixel
-            if self.board[x][y]!=0:
+            if self.board[x][y] != 0:
                 return None
             self.board[x][y] = self.player
-            self.board_line[x*self.size+y] = self.player
+            self.board_line[x * self.size + y] = (self.player - 1.5) * 2
             self.player = (self.player % 2) + 1
             for x in range(self.size):
                 for y in range(self.size):
-                    if self.size-x>=3:
-                        if self.board[x][y]==self.board[x+1][y]==self.board[x+2][y] and self.board[x][y]!=0:
+                    if self.size - x >= 3:
+                        if self.board[x][y] == self.board[x + 1][y] == self.board[x + 2][y] and self.board[x][y] != 0:
                             self.done = True
                             return self.board[x][y]
-                    if self.size-y>=3:
-                        if self.board[x][y]==self.board[x][y+1]==self.board[x][y+2] and self.board[x][y]!=0:
+                    if self.size - y >= 3:
+                        if self.board[x][y] == self.board[x][y + 1] == self.board[x][y + 2] and self.board[x][y] != 0:
                             self.done = True
                             return self.board[x][y]
-                    if self.size-y>=3 and self.size-x>=3:
-                        if self.board[x][y]==self.board[x+1][y+1]==self.board[x+2][y+2] and self.board[x][y]!=0:
+                    if self.size - y >= 3 and self.size - x >= 3:
+                        if self.board[x][y] == self.board[x + 1][y + 1] == self.board[x + 2][y + 2] and self.board[x][
+                            y] != 0:
                             self.done = True
                             return self.board[x][y]
-                    if self.size-y>=3 and x>=2:
-                        if self.board[x][y]==self.board[x-1][y+1]==self.board[x-2][y+2] and self.board[x][y]!=0:
+                    if self.size - y >= 3 and x >= 2:
+                        if self.board[x][y] == self.board[x - 1][y + 1] == self.board[x - 2][y + 2] and self.board[x][
+                            y] != 0:
                             self.done = True
                             return self.board[x][y]
-
-
-
 
     def draw(self):
         for col in range(self.size):
@@ -107,7 +110,10 @@ class TictactoeFild():
                              (self.pos[0] + row * self.size_pixel / self.size, self.pos[1] + self.size_pixel))
 
 
+evolve = False
 field = TictactoeFild((50, 50), 600, 3)
+num_of_ai = 80
+Ai = [ML.AI(9, 64, 3) for i in range(num_of_ai)]
 while True:
     screen.fill((255, 255, 255))
     for event in pygame.event.get():
@@ -123,9 +129,37 @@ while True:
                 #     if ans!=None:
                 #         field.restart()
             if event.button == 3:
-                field.generate_move()
+                field.generate_move(Ai[0])
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 field.restart()
+            if event.key == pygame.K_e:
+                evolve = not evolve
+    if evolve:
+        winns = [0] * num_of_ai
+        for i in range(num_of_ai):
+            for j in range(num_of_ai):
+                ans = None
+                ai = [i, j]
+                index = 0
+                while ans is None:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            pygame.quit()
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_e:
+                                evolve = not evolve
+                    ans = field.generate_move(Ai[ai[index]])
+                    index = (index + 1) % 2
+                field.restart()
+                ans -= 1
+                winns[ai[ans]] += 1
+        best = []
+        for _ in range(4):
+            best.append(winns.index(max(winns)))
+            winns.pop(best[-1])
+        Ai = (Ai[best[0]].evolve(num_of_ai // 4, 1) + Ai[best[1]].evolve(num_of_ai // 4, 1)
+              + Ai[best[2]].evolve(num_of_ai // 4, 1) + Ai[best[3]].evolve(num_of_ai // 4, 1))
+        print(best)
     field.draw()
     pygame.display.update()
