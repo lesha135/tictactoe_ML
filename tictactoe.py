@@ -23,8 +23,8 @@ class TictactoeFild():
         self.done = False
 
     def generate_move(self, Ai):
-        if self.done:
-            return
+        # if self.done:
+        #     return
         if self.player == 1:
             for i in range(self.size ** 2):
                 self.board_line[i] = -self.board_line[i]
@@ -113,6 +113,7 @@ class TictactoeFild():
 evolve = False
 field = TictactoeFild((50, 50), 600, 3)
 num_of_ai = 80
+rounds = 11
 Ai=[]
 with open('/Users/alekseisenkov/PycharmProjects/tictactoe_ML/ML_saves.txt', 'r') as f:
     for _ in range(4):
@@ -158,21 +159,27 @@ while True:
         winns = [0] * num_of_ai
         for i in range(num_of_ai):
             for j in range(num_of_ai):
-                ans = None
-                ai = [i, j]
-                index = 0
-                while ans is None:
-                    for event in pygame.event.get():
-                        if event.type == pygame.QUIT:
-                            pygame.quit()
-                        if event.type == pygame.KEYDOWN:
-                            if event.key == pygame.K_e:
-                                evolve = not evolve
-                    ans = field.generate_move(Ai[ai[index]])
-                    index = (index + 1) % 2
-                field.restart()
-                ans -= 1
-                winns[ai[ans]] += 1
+                for _ in range(rounds):
+                    ans = None
+                    ai = [i, j]
+                    winner={i:0, j:0}
+                    index = 0
+                    while ans is None:
+                        for event in pygame.event.get():
+                            if event.type == pygame.QUIT:
+                                pygame.quit()
+                            if event.type == pygame.KEYDOWN:
+                                if event.key == pygame.K_e:
+                                    evolve = not evolve
+                        ans = field.generate_move(Ai[ai[index]])
+                        index = (index + 1) % 2
+                    field.restart()
+                    ans -= 1
+                    winner[ai[index]] += 1
+                if winner[i]>winner[j]:
+                    winns[i]+=1
+                else:
+                    winns[j]+=1
         best = []
         for _ in range(4):
             best.append(winns.index(max(winns)))
