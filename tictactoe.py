@@ -113,8 +113,27 @@ class TictactoeFild():
 evolve = False
 field = TictactoeFild((50, 50), 600, 3)
 num_of_ai = 80
-Ai = [ML.AI(9, 64, 3) for i in range(num_of_ai)]
+Ai=[]
+with open('/Users/alekseisenkov/PycharmProjects/tictactoe_ML/ML_saves.txt', 'r') as f:
+    for _ in range(4):
+        ai = f.readline()
+        net = ai.split(']]], [[[')
+        for i in range(len(net)):
+            net[i] = net[i].split(']], [[')
+        for i in range(len(net)):
+            for ii in range(len(net[i])):
+                net[i][ii] = net[i][ii].split("], [")
+        for i in range(len(net)):
+            for ii in range(len(net[i])):
+                for iii in range(len(net[i][ii])):
+                    net[i][ii][iii] = list(map(float,net[i][ii][iii].split(", ")))
+        Ai.append(ML.AI(9, 64, 3, net))
+Ai = (Ai[0].evolve(num_of_ai // 4, 1) + Ai[1].evolve(num_of_ai // 4, 1) + Ai[2].evolve(num_of_ai // 4, 1)
+      + Ai[3].evolve(num_of_ai // 4, 1))
 while True:
+    with open('/Users/alekseisenkov/PycharmProjects/tictactoe_ML/ML_saves.txt', 'w') as f:
+        for ai in Ai[:4]:
+            f.write(str(ai.net)[4:-4]+"\n")
     screen.fill((255, 255, 255))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

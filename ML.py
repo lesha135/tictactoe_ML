@@ -13,7 +13,6 @@ class AI():
             self.net.append([[[random.random() * 4 - 2, random.random() - 0.5] for _ in range(neurons)] for _ in range(input)])
         else:
             self.net = net
-
     def play(self, input):
         neuron_net = [[0]*self.neurons for _ in range(self.layers)]
         neuron_net.insert(0,input)
@@ -40,7 +39,7 @@ class AI():
         return -1
 
     def evolve(self, copies_num,learning_rate):
-        ans = [AI(self.input,self.neurons,self.net)]
+        ans = [AI(self.input,self.neurons,self.layers,self.net)]
         for _ in range(copies_num-1):
             net = copy.deepcopy(self.net)
             for i in range(self.neurons):
@@ -49,5 +48,5 @@ class AI():
                     net[1][j][i][0] += (random.random()*2-1)*learning_rate
                     net[0][i][j][1] += (random.random()*2-1)*learning_rate/2
                     net[1][j][i][1] += (random.random()*2-1)*learning_rate/2
-            ans.append(AI(self.input,self.neurons,net))
+            ans.append(AI(self.input,self.neurons,self.layers,net))
         return ans
