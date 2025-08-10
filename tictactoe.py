@@ -112,7 +112,7 @@ class TictactoeFild():
 
 evolve = False
 field = TictactoeFild((50, 50), 600, 3)
-num_of_ai = 80
+num_of_ai = 200
 rounds = 11
 Ai=[]
 with open('/Users/alekseisenkov/PycharmProjects/tictactoe_ML/ML_saves.txt', 'r') as f:
@@ -129,8 +129,8 @@ with open('/Users/alekseisenkov/PycharmProjects/tictactoe_ML/ML_saves.txt', 'r')
                 for iii in range(len(net[i][ii])):
                     net[i][ii][iii] = list(map(float,net[i][ii][iii].split(", ")))
         Ai.append(ML.AI(9, 64, 3, net))
-Ai = (Ai[0].evolve(num_of_ai // 4, 1) + Ai[1].evolve(num_of_ai // 4, 1) + Ai[2].evolve(num_of_ai // 4, 1)
-      + Ai[3].evolve(num_of_ai // 4, 1))
+Ai = (Ai[0].evolve(num_of_ai // 4, 0.3) + Ai[1].evolve(num_of_ai // 4, 0.3) + Ai[2].evolve(num_of_ai // 4, 0.3)
+      + Ai[3].evolve(num_of_ai // 4, 0.3))
 while True:
     with open('/Users/alekseisenkov/PycharmProjects/tictactoe_ML/ML_saves.txt', 'w') as f:
         for ai in Ai[:4]:
@@ -184,8 +184,8 @@ while True:
         for _ in range(4):
             best.append(winns.index(max(winns)))
             winns.pop(best[-1])
-        Ai = (Ai[best[0]].evolve(num_of_ai // 4, 1) + Ai[best[1]].evolve(num_of_ai // 4, 1)
-              + Ai[best[2]].evolve(num_of_ai // 4, 1) + Ai[best[3]].evolve(num_of_ai // 4, 1))
+        Ai = (Ai[best[0]].evolve(num_of_ai // 4, 0.3) + Ai[best[1]].evolve(num_of_ai // 4, 0.3)
+              + Ai[best[2]].evolve(num_of_ai // 4, 0.3) + Ai[best[3]].evolve(num_of_ai // 4, 0.3))
         print(best)
     field.draw()
     pygame.display.update()
