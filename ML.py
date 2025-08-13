@@ -30,7 +30,7 @@ class AI:
                     neuron_net[l + 1][i]    += neuron_net[l][j] * self.net[l][i][j][0] + self.net[l][i][j][1]
         for i in range(self.input):
             for j in range(self.neurons):
-                neuron_net[-1][i] += neuron_net[-2][j] * self.net[-2][i][j][0] + self.net[-2][i][j][1]
+                neuron_net[-1][i] += neuron_net[-2][j] * self.net[-1][i][j][0] + self.net[-1][i][j][1]
         for i in range(len(neuron_net[-1])):
             if neuron_net[-1][i] < 0:
                 neuron_net[-1][i] = 0
@@ -50,7 +50,7 @@ class AI:
 
     def mutate(self, learning_rate, another_ai):
         net = copy.deepcopy(self.net)
-        for i in range(self.layers):
+        for i in range(len(net)):
             for ii in range(len(net[i])):
                 for iii in range(len(net[i][ii])):
                     for iv in range(len(net[i][ii][iii])):

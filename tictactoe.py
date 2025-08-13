@@ -243,11 +243,11 @@ while True:
                             finished += 1
                     else:
                         draws += 1
+            who_first = 0
             for _ in range(train_rounds):
                 ans = None
                 index = 0
                 field.restart()
-                who_first=0
                 while ans is None:
                     if index % 2 ==who_first:
                         ans = field.generate_move(Ai[i])
@@ -267,6 +267,7 @@ while True:
                         else:
                             winns[ai[(index + 1) % 2]][1] += 1
                             winns[ai[(index + 1) % 2]][2] += 1
+                who_first = (who_first + 1) % 2
 
 
         winns.sort(key=lambda x: -x[1])
