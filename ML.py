@@ -56,6 +56,6 @@ class AI:
                     for iv in range(len(net[i][ii][iii])):
                         rand = 1 if random.random() > 0.5 else 0
                         net[i][ii][iii][iv] = self.net[i][ii][iii][iv] * rand + another_ai.net[i][ii][iii][iv] * (1 - rand)
-                        net[i][ii][iii][iv] += (random.random() * 2 - 1) * learning_rate if random.random() < 0.2 else 0
+                        net[i][ii][iii][iv] += (random.random() * 2 - 1) * learning_rate if random.random() < 0.15 else 0
         return AI(self.input,self.neurons,self.layers,net=net)
 

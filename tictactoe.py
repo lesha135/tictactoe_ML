@@ -23,6 +23,41 @@ class TictactoeField:
         self.player = 1
         self.done = False
 
+    def train_rand(self):
+        ls=[]
+        for i in range(self.size**2):
+            if self.board_line[i] == 0:
+                ls.append(i)
+        if ls==[]:
+            self.done = True
+            return (self.player % 2) + 1, ans
+        rand = random.randint(0, len(ls)-1)
+        rand = ls[rand]
+        self.board[rand // self.size][rand % self.size] = self.player
+        self.board_line[rand] = (self.player - 1.5) * 2
+        self.player = (self.player % 2) + 1
+        for x in range(self.size):
+            for y in range(self.size):
+                if self.board[x][y] == 0:
+                    continue
+                if self.size - x >= 3:
+                    if self.board[x][y] == self.board[x + 1][y] == self.board[x + 2][y]:
+                        self.done = True
+                        return self.board[x][y], -1
+                if self.size - y >= 3:
+                    if self.board[x][y] == self.board[x][y + 1] == self.board[x][y + 2]:
+                        self.done = True
+                        return self.board[x][y], -1
+                if self.size - y >= 3 and self.size - x >= 3:
+                    if self.board[x][y] == self.board[x + 1][y + 1] == self.board[x + 2][y + 2]:
+                        self.done = True
+                        return self.board[x][y], -1
+                if self.size - y >= 3 and x >= 2:
+                    if self.board[x][y] == self.board[x - 1][y + 1] == self.board[x - 2][y + 2]:
+                        self.done = True
+                        return self.board[x][y], -1
+
+
     def generate_move(self, Ai):
         # if self.done:
         #     return
@@ -122,6 +157,7 @@ learning_rate = 0.4
 layers = 2
 neurons = 54
 num_best = 15
+train_rounds = 10
 
 
 def new_generation(Ai, num_of_ai):
@@ -196,22 +232,48 @@ while True:
                         ans = field.generate_move(Ai[ai[index % 2]])
                         index += 1
                     if index < 9:
-                        winns[ai[index % 2]][1] += 1
                         if ans[1] != -1:
                             winns[ai[(index + 1) % 2]][1] -= 2
                             winns[ai[(index + 1) % 2]][3] -= 1
+                            winns[ai[index % 2]][1] += 1
                         else:
                             winns[ai[(index + 1) % 2]][1] += 1
                             winns[ai[(index + 1) % 2]][2] += 1
+                            winns[ai[index % 2]][1] -= 1
                             finished += 1
                     else:
                         draws += 1
+            for _ in range(train_rounds):
+                ans = None
+                index = 0
+                field.restart()
+                who_first=0
+                while ans is None:
+                    if index % 2 ==who_first:
+                        ans = field.generate_move(Ai[i])
+                    else:
+                        ans = field.train_rand()
+                    index += 1
+                if index < 9:
+                    if ans[1] != -1:
+                        if index % 2 == who_first:
+                            winns[ai[index % 2]][1] += 1
+                        else:
+                            winns[ai[(index + 1) % 2]][1] -= 2
+                            winns[ai[(index + 1) % 2]][3] -= 1
+                    else:
+                        if index % 2 == who_first:
+                            winns[ai[index % 2]][1] -= 1
+                        else:
+                            winns[ai[(index + 1) % 2]][1] += 1
+                            winns[ai[(index + 1) % 2]][2] += 1
+
 
         winns.sort(key=lambda x: -x[1])
 
         best = winns[:num_best]
         bestAi = [Ai[best[i][0]] for i in range(len(best))]
-        Ai = new_generation(bestAi, num_of_ai)
+        Ai = new_generation(bestAi, num_of_ai-10)+[ML.AI(9, neurons, layers) for _ in range(10)]
         print(generation, best)
         print("Finished:", finished, "Draws:", draws)
         generation += 1
